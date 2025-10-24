@@ -12,7 +12,7 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'Enderaço de E-mail inválido' })
   email: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'Preencha o campo Nome' })
   @IsString({ message: 'Nome digitado inválido' })
   name: string;
 
