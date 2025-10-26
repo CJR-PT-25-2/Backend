@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  senha     String
+  foto__perfil_URL String?
+  lojas Loja[]
+  avaliacoes_p Avaliacao_produto[]
+  avaliacoes_l Avaliacao_loja[]
+  comentarios Comentarios_avaliacao[]
+
+}
+
+model Loja{
+  id                Int      @id @default(autoincrement())
+  nome              String
+  descricao         String?
+  dono              Usuario  @relation(fields: [donoId], references: [id])
+  donoId            Int
+  banner_url        String?
+  sticker_url       String?
+  produtos          Produto[]
+  avaliacoes        Avaliacao_loja[]
+  
+
+}
+
+model Produto{
+  id        Int  @id @default(autoincrement())
+  loja_id   Int
+  Loja      Loja   @relation(fields: [loja_id], references: [id])
+  categoria_id  Int
+  Categoria    Categoria @relation(fields: [categoria_id], references: [id])  
+  nome      String
+  descrição String
+  preco     Float
+  estoque   Int
+  imagens   Imagens_produto[]
+  avaliacoes Avaliacao_produto[] 
+}
+
+model Imagens_produto{
+  id           Int @id @default(autoincrement())
+  ordem        Int
+  Img_URL      String
+  produto_id   Int
+  Produto      Produto @relation(fields: [produto_id], references: [id])
+  Categoria    Categoria @relation(fields: [categoria_id], references: [id])
+  categoria_id Int 
+}
+
+model Categoria{
+  id                   Int @id @default(autoincrement())
+  nome                 String
+  Categoria_pai        Categoria? @relation("CategoriaToCategoria", fields: [categoria_pai_id], references: [id])
+  categoria_pai_id     Int?
+  categoria            Categoria [] @relation("CategoriaToCategoria")
+  produtos             Produto[]
+  imagens_produto      Imagens_produto[]
+}
+
+model Avaliacao_produto{
+  id                    Int @id @default(autoincrement())
+  produto_id            Int
+  Produto               Produto @relation(fields: [produto_id], references: [id])
+  usuario_id            Int
+  Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+  nota                  Int
+  comentario            String 
+  Comentarios Comentarios_avaliacao[] 
+}
+
+model Avaliacao_loja{
+  id                    Int @id @default(autoincrement())
+  loja_id               Int
+  loja                  Loja @relation(fields: [loja_id], references: [id])
+  usuario_id            Int
+  Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+  nota                  Int
+  comentario            String 
+  Comentarios Comentarios_avaliacao[] 
+}
+
+model Comentarios_avaliacao{
+  id                    Int @id @default(autoincrement())
+  avaliacao_produto_id  Int
+  avaliacao_produto     Avaliacao_produto @relation(fields: [avaliacao_produto_id], references: [id])
+  avaliacao_loja_id     Int
+  avaliacao_loja        Avaliacao_loja @relation(fields: [avaliacao_loja_id], references: [id])
+  usuario_id            Int
+  Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+  conteudo              String
+
+}
