@@ -8,19 +8,25 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    // Vai ser implementado pelo heytor
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+      const user = await this.prisma.usuario.create({
+        data: { ...createUserDto }, 
+      })
+    return user;
   }
 
-  findAll() {
-    // Vai ser implementado pelo heytor
-    return `This action returns all user`;
+ async findAll() {
+    return await this.prisma.users.findMany();
+    
   }
 
-  findOne(id: number) {
-    // Vai ser implementado pelo heytor
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    if(!id){
+            throw new Error('Usuario não encontrado');
+        }
+        return await this.prisma.users.findUnique({
+            where: { id },
+        });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
