@@ -19,7 +19,7 @@ export class UserService {
   }
 
  async findAll() {
-    return await this.prisma.users.findMany();
+    return await this.prisma.usuario.findMany();
     
   }
 
@@ -27,7 +27,7 @@ export class UserService {
     if(!id){
             throw new Error('Usuario não encontrado');
         }
-        return await this.prisma.users.findUnique({
+        return await this.prisma.usuario.findUnique({
             where: { id },
         });
   }
