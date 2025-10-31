@@ -30,6 +30,12 @@ export class UserService {
     });
   }
 
+  async findByEmail(email: string) {
+    return await this.prisma.usuario.findUnique({
+      where: { email },
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     if (updateUserDto.senha) {
       const salt = 10;
