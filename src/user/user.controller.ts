@@ -13,6 +13,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { SelfGuard } from 'src/auth/guard/self.guard';
 
 @Controller('user')
 export class UserController {
@@ -29,13 +30,13 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfGuard)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOne(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -44,7 +45,7 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), SelfGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(id);
