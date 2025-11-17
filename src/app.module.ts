@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { prismaModule } from 'prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config'; // 1. Importe o ConfigModule
+import { LojaModule } from './loja/loja.module';
 import { AvaliacaoLojaModule } from './avaliacao-loja/avaliacao-loja.module';
 import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.module';
 import { CategoriaModule } from './categoria/categoria.module';
@@ -17,6 +18,7 @@ import { CategoriaModule } from './categoria/categoria.module';
     UserModule,
     prismaModule,
     AuthModule,
+    LojaModule,
     AvaliacaoLojaModule,
     AvaliacaoProdutoModule,
     CategoriaModule,
