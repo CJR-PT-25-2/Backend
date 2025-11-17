@@ -8,10 +8,13 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PublicProfileDto } from './dto/public-profile.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { SelfGuard } from 'src/auth/guard/self.guard';
 
@@ -30,10 +33,23 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt'), SelfGuard)
+  @UseGuards(AuthGuard('jwt'))
+  @Get('me')
+  getMyProfile(@Req() req: Request) {
+    const userId = parseInt((req as any).user.id, 10);
+
+    return this.userService.findMyProfile(userId);
+  }
+
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.userService.findOne(id);
+  async getPublicProfile(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PublicProfileDto> {
+    const profile = await this.userService.findPublicProfile(id);
+    if (!profile) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return profile;
   }
 
   @UseGuards(AuthGuard('jwt'), SelfGuard)
