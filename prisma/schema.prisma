@@ -18,6 +18,7 @@ model Usuario {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String?
+  username String @unique
   senha     String
   foto__perfil_URL String?
   lojas Loja[]

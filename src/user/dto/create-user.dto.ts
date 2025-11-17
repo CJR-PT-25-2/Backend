@@ -16,6 +16,10 @@ export class CreateUserDto {
   @IsString({ message: 'Nome digitado inválido' })
   name: string;
 
+  @IsNotEmpty({ message: 'Preencha o campo nome de usuário' })
+  @IsString({ message: 'Nome digitado inválido' })
+  username: string;
+
   @IsString()
   @IsNotEmpty({ message: 'Preencha o campo Senha' })
   @MinLength(8, { message: 'A senha deve conter no mínimo 8 caracteres' })
