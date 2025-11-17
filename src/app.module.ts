@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config'; // 1. Importe o ConfigModule
 import { AvaliacaoLojaModule } from './avaliacao-loja/avaliacao-loja.module';
 import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.module';
+import { CategoriaModule } from './categoria/categoria.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.mo
     AuthModule,
     AvaliacaoLojaModule,
     AvaliacaoProdutoModule,
+    CategoriaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
