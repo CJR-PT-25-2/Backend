@@ -1,21 +1,26 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "Usuario" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT,
+    "username" TEXT NOT NULL,
+    "senha" TEXT NOT NULL,
+    "foto__perfil_URL" TEXT,
 
-  - You are about to drop the column `createdAt` on the `Loja` table. All the data in the column will be lost.
-  - You are about to drop the column `updatedAt` on the `Loja` table. All the data in the column will be lost.
-  - You are about to drop the column `createdAt` on the `Usuario` table. All the data in the column will be lost.
-  - You are about to drop the column `updatedAt` on the `Usuario` table. All the data in the column will be lost.
+    CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
+);
 
-*/
--- AlterTable
-ALTER TABLE "Loja" DROP COLUMN "createdAt",
-DROP COLUMN "updatedAt",
-ADD COLUMN     "banner_url" TEXT,
-ADD COLUMN     "sticker_url" TEXT;
+-- CreateTable
+CREATE TABLE "Loja" (
+    "id" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "descricao" TEXT,
+    "donoId" INTEGER NOT NULL,
+    "banner_url" TEXT,
+    "sticker_url" TEXT,
 
--- AlterTable
-ALTER TABLE "Usuario" DROP COLUMN "createdAt",
-DROP COLUMN "updatedAt";
+    CONSTRAINT "Loja_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Produto" (
@@ -82,6 +87,15 @@ CREATE TABLE "Comentarios_avaliacao" (
 
     CONSTRAINT "Comentarios_avaliacao_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Usuario_username_key" ON "Usuario"("username");
+
+-- AddForeignKey
+ALTER TABLE "Loja" ADD CONSTRAINT "Loja_donoId_fkey" FOREIGN KEY ("donoId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Produto" ADD CONSTRAINT "Produto_loja_id_fkey" FOREIGN KEY ("loja_id") REFERENCES "Loja"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
