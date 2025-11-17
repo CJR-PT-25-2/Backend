@@ -6,6 +6,10 @@ import { prismaModule } from 'prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config'; // 1. Importe o ConfigModule
 import { ProdutoModule } from './produto/produto.module';
+import { LojaModule } from './loja/loja.module';
+import { AvaliacaoLojaModule } from './avaliacao-loja/avaliacao-loja.module';
+import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.module';
+import { CategoriaModule } from './categoria/categoria.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { ProdutoModule } from './produto/produto.module';
     prismaModule,
     AuthModule,
     ProdutoModule,
+    LojaModule,
+    AvaliacaoLojaModule,
+    AvaliacaoProdutoModule,
+    CategoriaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

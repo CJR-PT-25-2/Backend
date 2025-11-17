@@ -3,6 +3,7 @@ CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "name" TEXT,
+    "username" TEXT NOT NULL,
     "senha" TEXT NOT NULL,
     "foto__perfil_URL" TEXT,
 
@@ -89,6 +90,9 @@ CREATE TABLE "Comentarios_avaliacao" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Usuario_email_key" ON "Usuario"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Usuario_username_key" ON "Usuario"("username");
 
 -- AddForeignKey
 ALTER TABLE "Loja" ADD CONSTRAINT "Loja_donoId_fkey" FOREIGN KEY ("donoId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
