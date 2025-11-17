@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { PublicProfileDto } from './dto/public-profile.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -19,6 +20,36 @@ export class UserService {
 
   async findAll() {
     return await this.prisma.usuario.findMany();
+  }
+
+  async findMyProfile(id: number) {
+    const user = await this.prisma.usuario.findUnique({
+      where: { id: id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const { senha, ...profile } = user;
+    return profile;
+  }
+
+  async findPublicProfile(id: number): Promise<PublicProfileDto> {
+    const userProfile = await this.prisma.usuario.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        foto__perfil_URL: true,
+      },
+    });
+
+    if (!userProfile) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return userProfile;
   }
 
   async findOne(id: number) {
