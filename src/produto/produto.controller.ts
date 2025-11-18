@@ -34,6 +34,11 @@ export class ProdutoController {
     return this.produtoService.findOne(id);
   }
 
+  @Get('categoria_pai/:id')
+async findByCategoriaPai(@Param('id', ParseIntPipe) id: number) {
+  return this.produtoService.findByCategoriaPai(id);
+}
+
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,

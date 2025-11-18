@@ -29,7 +29,8 @@ export class CategoriaService {
       include: {
         Categoria_pai: true,
         categoria: true, // subcategorias
-        produtos: true,
+        produtos_especifico: true,
+        produtos_geral: true,
       },
     });
   }
@@ -40,7 +41,8 @@ export class CategoriaService {
       include: {
         Categoria_pai: true,
         categoria: true, 
-        produtos: true,
+        produtos_especifico: true,
+        produtos_geral: true,
       },
     });
 

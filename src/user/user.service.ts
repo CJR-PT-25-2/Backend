@@ -42,7 +42,7 @@ export class UserService {
         id: true,
         name: true,
         username: true,
-        foto__perfil_URL: true,
+        foto_perfil_URL: true,
       },
     });
 

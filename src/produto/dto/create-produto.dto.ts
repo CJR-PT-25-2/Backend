@@ -29,4 +29,8 @@ export class CreateProdutoDto {
   @IsNotEmpty({ message: 'ID da categoria é obrigatório.' })
   @IsNumber({}, { message: 'ID da categoria deve ser numérico.' })
   categoria_id: number;
+
+  @IsString({ message: 'URL da imagem inválida.' })
+  @IsOptional()
+  Imagems_produto_URL?: string;
 }
