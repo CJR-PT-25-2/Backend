@@ -20,7 +20,7 @@ model Usuario {
   name      String?
   username String @unique
   senha     String
-  foto__perfil_URL String?
+  foto_perfil_URL String?
   lojas Loja[]
   avaliacoes_p Avaliacao_produto[]
   avaliacoes_l Avaliacao_loja[]

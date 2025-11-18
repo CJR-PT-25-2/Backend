@@ -7,9 +7,16 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config'; // 1. Importe o ConfigModule
 import { AvaliacaoLojaModule } from './avaliacao-loja/avaliacao-loja.module';
 import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 
 @Module({
   imports: [
+      ServeStaticModule.forRoot({
+    rootPath: join(process.cwd(), 'uploads'),
+    serveRoot: '/uploads',
+  }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),

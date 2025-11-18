@@ -10,6 +10,8 @@ import {
   UseGuards,
   NotFoundException,
   Req,
+  UseInterceptors,
+  UploadedFile
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +19,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PublicProfileDto } from './dto/public-profile.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { SelfGuard } from 'src/auth/guard/self.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/upload/upload.config';
 
 @Controller('user')
 export class UserController {
@@ -60,6 +64,18 @@ export class UserController {
   ) {
     return this.userService.update(id, updateUserDto);
   }
+
+  @Post(':id/avatar')
+  @UseInterceptors(FileInterceptor('file', multerConfig))
+  uploadAvatar(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    console.log("📸 BACKEND RECEBEU O ARQUIVO?", !!file);
+    console.log("📄 FILE:", file);
+    return this.userService.updateAvatar(id, file);
+  }
+
 
   @UseGuards(AuthGuard('jwt'), SelfGuard)
   @Delete(':id')
