@@ -27,6 +27,7 @@ export class UserService {
       where: { id: id },
     });
 
+    console.log("📤 Enviando usuário:", user);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
@@ -83,6 +84,14 @@ export class UserService {
       );
     }
   }
+  
+  async updateAvatar(id: number, file: Express.Multer.File) {
+    return await this.prisma.usuario.update({
+      where: { id },
+      data: { foto_perfil_URL: `/uploads/${file.filename}` },
+    });
+  }
+
 
   async remove(id: number) {
     try {
@@ -93,4 +102,5 @@ export class UserService {
       throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
     }
   }
+  
 }

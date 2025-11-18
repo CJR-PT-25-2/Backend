@@ -27,5 +27,5 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsUrl({}, { message: 'A foto fornecida deve ser uma URL válida' })
-  foto__perfil_URL: string;
+  foto_perfil_URL: string;
 }
