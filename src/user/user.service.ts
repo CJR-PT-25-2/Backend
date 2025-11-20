@@ -22,12 +22,21 @@ export class UserService {
     return await this.prisma.usuario.findMany();
   }
 
+  // ============================
+  // 🔥 PERFIL LOGADO (/users/me)
+  // ============================
   async findMyProfile(id: number) {
     const user = await this.prisma.usuario.findUnique({
-      where: { id: id },
+      where: { id },
+      include: {
+        lojas: {
+          include: {
+            produtos: true,
+          },
+        },
+      },
     });
 
-    console.log("📤 Enviando usuário:", user);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado');
     }
@@ -36,20 +45,29 @@ export class UserService {
     return profile;
   }
 
+  // =====================================
+  // 🔥 PERFIL PÚBLICO (/users/:id)
+  // =====================================
   async findPublicProfile(id: number): Promise<PublicProfileDto> {
     const userProfile = await this.prisma.usuario.findUnique({
-      where: { id: id },
+      where: { id },
       select: {
         id: true,
         name: true,
         username: true,
         foto_perfil_URL: true,
+        lojas: {
+          include: {
+            produtos: true,
+          },
+        },
       },
     });
 
     if (!userProfile) {
       throw new NotFoundException('Usuário não encontrado');
     }
+
     return userProfile;
   }
 
@@ -73,9 +91,10 @@ export class UserService {
       const salt = 10;
       updateUserDto.senha = await bcrypt.hash(updateUserDto.senha, salt);
     }
+
     try {
       return await this.prisma.usuario.update({
-        where: { id: id },
+        where: { id },
         data: { ...updateUserDto },
       });
     } catch (error) {
@@ -84,7 +103,7 @@ export class UserService {
       );
     }
   }
-  
+
   async updateAvatar(id: number, file: Express.Multer.File) {
     return await this.prisma.usuario.update({
       where: { id },
@@ -92,15 +111,13 @@ export class UserService {
     });
   }
 
-
   async remove(id: number) {
     try {
       return await this.prisma.usuario.delete({
-        where: { id: id },
+        where: { id },
       });
     } catch (error) {
       throw new NotFoundException(`Usuário com o ID ${id} não encontrado.`);
     }
   }
-  
 }

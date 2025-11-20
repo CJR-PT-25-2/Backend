@@ -9,7 +9,11 @@ import {
   ParseIntPipe,
   UsePipes,
   ValidationPipe,
+  UseInterceptors,
+  UploadedFile
 } from '@nestjs/common';
+import { multerConfig } from 'src/upload/upload.config';
+import { FileInterceptor } from '@nestjs/platform-express'; 
 import { ProdutoService } from './produto.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
@@ -19,10 +23,25 @@ import { UpdateProdutoDto } from './dto/update-produto.dto';
 export class ProdutoController {
   constructor(private readonly produtoService: ProdutoService) {}
 
+  // @Post()
+  // create(@Body() dto: CreateProdutoDto) {
+  //   return this.produtoService.create(dto);
+  // }
   @Post()
-  create(@Body() dto: CreateProdutoDto) {
-    return this.produtoService.create(dto);
+  @UseInterceptors(FileInterceptor("file"))
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: CreateProdutoDto
+  ) {
+    const imagens = file ? `/uploads/${file.filename}` : undefined;
+
+    return this.produtoService.create({
+      ...body,
+      Imagems_produto_URL: imagens,
+    });
   }
+
+
 
   @Get()
   findAll() {

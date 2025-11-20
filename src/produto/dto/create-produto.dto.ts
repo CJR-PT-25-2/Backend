@@ -4,6 +4,8 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Type } from "class-transformer";
+
 
 export class CreateProdutoDto {
   @IsNotEmpty({ message: 'Nome do produto é obrigatório.' })
@@ -12,23 +14,23 @@ export class CreateProdutoDto {
 
   @IsOptional()
   @IsString({ message: 'Descrição inválida.' })
-  descrição?: string;   
+  descricao?: string;   
 
-  @IsNotEmpty({ message: 'Preço do produto é obrigatório.' })
-  @IsNumber({}, { message: 'Preço deve ser um número.' })
+  @Type(() => Number)
+  @IsNumber()
+  categoria_id: number;
+
+  @Type(() => Number)
+  @IsNumber()
   preco: number;
 
-  @IsNotEmpty({ message: 'Estoque é obrigatório.' })
-  @IsNumber({}, { message: 'Estoque deve ser numérico.' })
+  @Type(() => Number)
+  @IsNumber()
   estoque: number;
 
-  @IsNotEmpty({ message: 'ID da loja é obrigatório.' })
-  @IsNumber({}, { message: 'ID da loja deve ser numérico.' })
+  @Type(() => Number)
+  @IsNumber()
   loja_id: number;
-
-  @IsNotEmpty({ message: 'ID da categoria é obrigatório.' })
-  @IsNumber({}, { message: 'ID da categoria deve ser numérico.' })
-  categoria_id: number;
 
   @IsString({ message: 'URL da imagem inválida.' })
   @IsOptional()

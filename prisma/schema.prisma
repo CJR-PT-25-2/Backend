@@ -34,6 +34,7 @@
     descricao         String?
     dono              Usuario  @relation(fields: [donoId], references: [id])
     donoId            Int
+    perfil_url        String?
     banner_url        String?
     sticker_url       String?
     produtos          Produto[]

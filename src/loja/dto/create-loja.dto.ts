@@ -1,4 +1,6 @@
 import { IsInt, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import { Type } from 'class-transformer';
+
 
 export class CreateLojaDto {
   @IsNotEmpty({ message: 'Nome da Loja.' })
@@ -11,13 +13,19 @@ export class CreateLojaDto {
 
   @IsNotEmpty({ message: 'O donoId é obrigatório.' })
   @IsInt()
+  @Type(() => Number)
   donoId: number;
 
   @IsOptional()
-  @IsUrl({}, { message: 'banner_url deve ser uma URL válida.' })
-  banner_url?: string;
+  @IsString()
+  perfil_url?: string;
 
   @IsOptional()
-  @IsUrl({}, { message: 'sticker_url deve ser uma URL válida.' })
+  @IsString()
   sticker_url?: string;
+
+  @IsOptional()
+  @IsString()
+  banner_url?: string;
+
 }

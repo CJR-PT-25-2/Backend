@@ -16,6 +16,7 @@ CREATE TABLE "Loja" (
     "nome" TEXT NOT NULL,
     "descricao" TEXT,
     "donoId" INTEGER NOT NULL,
+    "perfil_URL" TEXT,
     "banner_url" TEXT,
     "sticker_url" TEXT,
 

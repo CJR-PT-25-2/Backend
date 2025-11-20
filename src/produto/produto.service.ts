@@ -39,14 +39,14 @@ export class ProdutoService {
       preco: data.preco,
       Loja: { connect: { id: data.loja_id } },
       Categoria: {connect: { id: categoriaEspec.id }},
-      descrição: data.descrição || null,
+      descrição: data.descricao || null,
       estoque: data.estoque,
       Imagems_produto_URL: data.Imagems_produto_URL || null,  
       Categoria_pai: { connect: { id: categoriaEspec.categoria_pai_id } },
     };
 
-    if (data.descrição !== undefined) {
-      produtoData.descrição = data.descrição;
+    if (data.descricao !== undefined) {
+      produtoData.descrição = data.descricao;
     }
 
     return await this.prisma.produto.create({
