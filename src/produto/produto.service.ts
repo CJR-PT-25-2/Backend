@@ -1,170 +1,213 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { SUBCATEGORIAS } from './subcategorias'; 
 
+export interface CreateProdutoWithNamesDto extends CreateProdutoDto {
+  subcategoriaNome: string; 
+  categoriaPaiNome: string; 
+    imagem1_url?: string;
+  imagem2_url?: string;
+  imagem3_url?: string;
+  imagem4_url?: string;
+}
+interface UpdateProdutoFilesDto extends UpdateProdutoDto {
+    imagem1_url?: Express.Multer.File[];
+    imagem2_url?: Express.Multer.File[];
+    imagem3_url?: Express.Multer.File[];
+    imagem4_url?: Express.Multer.File[];
+    }
+const normalizeKey = (name: string) => name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
 @Injectable()
 export class ProdutoService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateProdutoDto) {
-    const loja = await this.prisma.loja.findUnique({
-      where: { id: data.loja_id },
+  async create(data: CreateProdutoWithNamesDto) {
+        const lojaIdNumerico = Number(data.loja_id);
+    const precoNumerico = Number(data.preco);
+    const estoqueNumerico = Number(data.estoque);
+
+        const loja = await this.prisma.loja.findUnique({
+      where: { id: lojaIdNumerico },
     });
 
     if (!loja) {
-      throw new NotFoundException(
-        `Loja com ID ${data.loja_id} não encontrada.`,
-      );
+      throw new NotFoundException(`Loja com ID ${data.loja_id} não encontrada.`);
     }
-
-    const categoriaEspec = await this.prisma.categoria.findUnique({
-      where: { id: data.categoria_id },
-      select: { id: true,categoria_pai_id:true },
+    const normalizeKey = (name: string) => name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+                const categoriaChave = normalizeKey(data.categoriaPaiNome) as keyof typeof SUBCATEGORIAS;
+    const categoriasValidas = SUBCATEGORIAS[categoriaChave];
+        if (!categoriasValidas || !Array.isArray(categoriasValidas) || !categoriasValidas.includes(data.subcategoriaNome)) {
+        throw new BadRequestException("Subcategoria inválida para a categoria da loja.");
+    }
+    
+        
+        const subcategoria = await this.prisma.categoria.findFirst({
+        where: { 
+            nome: data.subcategoriaNome,
+            categoria_pai_id: { not: null } 
+        },
+        select: { id: true, categoria_pai_id: true },
     });
 
-    if (!categoriaEspec) {
-            throw new NotFoundException(
-                `Categoria com ID ${data.categoria_id} não encontrada.`,
-            );
-        }
-      
-    if (!categoriaEspec.categoria_pai_id) {
-            throw new NotFoundException(
-                `A categoria ${data.categoria_id} não possui uma Categoria Pai definida (ID nulo).`,
-            );
-        }
-    const produtoData: any = {
-      nome: data.nome,
-      preco: data.preco,
-      Loja: { connect: { id: data.loja_id } },
-      Categoria: {connect: { id: categoriaEspec.id }},
-      descrição: data.descricao || null,
-      estoque: data.estoque,
-      Imagems_produto_URL: data.Imagems_produto_URL || null,  
-      Categoria_pai: { connect: { id: categoriaEspec.categoria_pai_id } },
-    };
+        const categoriaPai = await this.prisma.categoria.findFirst({
+        where: { nome: data.categoriaPaiNome, categoria_pai_id: null }, 
+        select: { id: true },
+    });
 
-    if (data.descricao !== undefined) {
-      produtoData.descrição = data.descricao;
+
+        if (!subcategoria || !categoriaPai) {
+        throw new NotFoundException(`Uma das categorias (${data.subcategoriaNome} ou ${data.categoriaPaiNome}) não foi encontrada no banco de dados.`);
     }
 
-    return await this.prisma.produto.create({
-      data: produtoData,
+        const produtoData: any = {
+      nome: data.nome,
+      descrição: data.descricao ?? null,
+      
+      preco: precoNumerico,
+      estoque: estoqueNumerico,
+      
+            Imagems_produto_URL: data.imagem1_url ?? data.Imagems_produto_URL ?? null,       imagem1_url: data.imagem1_url ?? null,
+      imagem2_url: data.imagem2_url ?? null,
+      imagem3_url: data.imagem3_url ?? null,
+      imagem4_url: data.imagem4_url ?? null,
+
+            Loja: { connect: { id: lojaIdNumerico } },
+      Categoria: { connect: { id: subcategoria.id } }, 
+      Categoria_pai: { connect: { id: categoriaPai.id } },
+    };
+
+    return this.prisma.produto.create({ data: produtoData });
+  }
+
+      
+  async findByCategoriaPai(categoriaPaiId: number) {
+    return this.prisma.produto.findMany({
+      where: { categoria_id_pai: categoriaPaiId },
+      select: {
+        id: true,
+        nome: true,
+        preco: true,
+        estoque: true,
+        Imagems_produto_URL: true,
+        Loja: {
+          select: { sticker_url: true },
+        },
+        Categoria: true,
+      },
     });
   }
 
-  async findByCategoriaPai(categoriaPaiId: number) {
-    return await this.prisma.produto.findMany({
-        where: {
-            categoria_id_pai: categoriaPaiId,
-        },
-        select: {
-            id: true,
-            nome: true,
-            preco: true,
-            estoque: true,
-            Imagems_produto_URL: true, // Campo direto da URL
-            Loja: {
-                select: {
-                    sticker_url: true, // Para o logo na caixinha
-                },
-            },
-        },
-    });
-}
-
   async findAll() {
-    return await this.prisma.produto.findMany({
+    return this.prisma.produto.findMany({
       include: {
         Loja: true,
-        imagens: true,
-        avaliacoes: true,
         Categoria: true,
         Categoria_pai: true,
+        imagens: true,
+        avaliacoes: true,
       },
     });
   }
 
   async findOne(id: number) {
-    const produto = await this.prisma.produto.findUnique({
-      where: { id },
-      include: {
-        Loja: true,
-        imagens: true,
-        avaliacoes: true,
-        Categoria: true,
-        Categoria_pai: true,
+  const produto = await this.prisma.produto.findUnique({
+    where: { id },
+    include: {
+            Loja: {
+        select: {
+          id: true,
+          nome: true,
+          donoId: true,         },
       },
+      Categoria: true,
+      Categoria_pai: true,
+      imagens: true,
+      avaliacoes: true,
+    },
+  });
+
+  if (!produto) throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
+
+      
+  return produto;
+}
+
+  async update(id: number, data: any, files: any) {
+    const updateData: any = {};
+
+  if (data.nome !== undefined) updateData.nome = data.nome;
+  if (data.preco !== undefined) updateData.preco = Number(data.preco);
+  if (data.estoque !== undefined) updateData.estoque = Number(data.estoque);
+  if (data.descricao !== undefined) updateData.descrição = data.descricao;
+
+    if (data.categoriaPai && data.subcategoria) {
+    const categoriaPaiNome = data.categoriaPai;
+    const subcategoriaNome = data.subcategoria;
+
+    const categoriaPai = await this.prisma.categoria.findFirst({
+      where: { nome: categoriaPaiNome, categoria_pai_id: null },
     });
 
-    if (!produto) {
-      throw new NotFoundException(`Produto com ID ${id} não encontrado.`);
+    const subcategoria = await this.prisma.categoria.findFirst({
+      where: { nome: subcategoriaNome, categoria_pai_id: categoriaPai?.id },
+    });
+
+    if (!categoriaPai || !subcategoria) {
+      throw new BadRequestException("Categoria ou Subcategoria inválida.");
     }
 
-    return produto;
+    updateData.Categoria_pai = { connect: { id: categoriaPai.id } };
+    updateData.Categoria = { connect: { id: subcategoria.id } };
   }
 
-  async update(id: number, data: UpdateProdutoDto) {
-    try {
-      const { loja_id, ...rest } = data;
+    const getUrl = (fileArray?: Express.Multer.File[]) =>
+    fileArray?.[0] ? `/uploads/${fileArray[0].filename}` : undefined;
 
-      if (loja_id) {
-        const loja = await this.prisma.loja.findUnique({
-          where: { id: loja_id },
-        });
+  const novasImagens = {
+    imagem1_url: getUrl(files.imagem1),
+    imagem2_url: getUrl(files.imagem2),
+    imagem3_url: getUrl(files.imagem3),
+    imagem4_url: getUrl(files.imagem4),
+  };
 
-        if (!loja) {
-          throw new NotFoundException(`Loja com ID ${loja_id} não encontrada.`);
-        }
-      }
+    const remover = {
+    img1: data.remove_imagem1 === "true",
+    img2: data.remove_imagem2 === "true",
+    img3: data.remove_imagem3 === "true",
+    img4: data.remove_imagem4 === "true",
+  };
 
-      let categoria_pai_id_to_connect: number | undefined;
-      let { categoria_id: Categoria_id } = data;
+    if (remover.img1) updateData.imagem1_url = null;
+  else if (novasImagens.imagem1_url) updateData.imagem1_url = novasImagens.imagem1_url;
 
-      if (Categoria_id) {
-        const categoriaEspec = await this.prisma.categoria.findUnique({
-            where: { id: Categoria_id },
-            select: { categoria_pai_id: true }
-        });
+    if (remover.img2) updateData.imagem2_url = null;
+  else if (novasImagens.imagem2_url) updateData.imagem2_url = novasImagens.imagem2_url;
 
-      if (!categoriaEspec || !categoriaEspec.categoria_pai_id) {
-            // Se não encontrou a categoria ou ela não tem um pai (e o campo é obrigatório)
-            throw new NotFoundException(
-                `Categoria ${Categoria_id} inválida ou Categoria Pai não definida.`,
-            );
-        }
-        categoria_pai_id_to_connect = categoriaEspec.categoria_pai_id;
-    }
+    if (remover.img3) updateData.imagem3_url = null;
+  else if (novasImagens.imagem3_url) updateData.imagem3_url = novasImagens.imagem3_url;
 
+    if (remover.img4) updateData.imagem4_url = null;
+  else if (novasImagens.imagem4_url) updateData.imagem4_url = novasImagens.imagem4_url;
 
-      const filtered = Object.fromEntries(
-        Object.entries(rest).filter(([_, v]) => v !== undefined),
-      ) as any;
+    if (updateData.imagem1_url)
+    updateData.Imagems_produto_URL = updateData.imagem1_url;
 
-      return await this.prisma.produto.update({
-        where: { id },
-        data: {
-          ...filtered,
-          Loja: loja_id ? { connect: { id: loja_id } } : undefined,
-        },
-      });
-    } catch {
-      throw new NotFoundException(
-        `Não foi possível atualizar o produto com ID ${id}.`,
-      );
-    }
-  }
+    if (data.loja_id)
+    updateData.Loja = { connect: { id: Number(data.loja_id) } };
+
+    return this.prisma.produto.update({
+    where: { id },
+    data: updateData,
+  });
+}
 
   async remove(id: number) {
     try {
-      return await this.prisma.produto.delete({
-        where: { id },
-      });
+      return this.prisma.produto.delete({ where: { id } });
     } catch {
-      throw new NotFoundException(
-        `Produto com ID ${id} não encontrado.`,
-      );
+      throw new NotFoundException(`Produto ${id} não encontrado.`);
     }
   }
 }

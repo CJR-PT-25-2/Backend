@@ -15,6 +15,7 @@ CREATE TABLE "Loja" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "descricao" TEXT,
+    "categoria" INTEGER NOT NULL,
     "donoId" INTEGER NOT NULL,
     "perfil_URL" TEXT,
     "banner_url" TEXT,

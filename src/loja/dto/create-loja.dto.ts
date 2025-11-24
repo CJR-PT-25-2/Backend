@@ -11,6 +11,11 @@ export class CreateLojaDto {
   @IsString()
   descricao?: string;
 
+  @IsInt()
+  @IsNotEmpty()
+  @Type(() => Number)
+  categoriaId: number;
+
   @IsNotEmpty({ message: 'O donoId é obrigatório.' })
   @IsInt()
   @Type(() => Number)

@@ -19,6 +19,7 @@ export class LojaService {
       nome: data.nome,
       descricao: data.descricao,
       donoId: data.donoId,
+      categoriaId: data.categoriaId ,
       perfil_url: data.perfil_url ?? null,
       sticker_url: data.sticker_url ?? null,
       banner_url: data.banner_url ?? null,
@@ -26,6 +27,30 @@ export class LojaService {
   });
 }
 
+async getSubcategorias(lojaId: number) {
+      const loja = await this.prisma.loja.findUnique({
+      where: { id: lojaId },
+      include: { categoria: true },
+    });
+
+    if (!loja) throw new NotFoundException("Loja não encontrada.");
+
+    const categoriaLojaNome = loja.categoria.nome;
+
+        const categoriaPai = await this.prisma.categoria.findFirst({
+      where: {
+        nome: categoriaLojaNome,
+        categoria_pai_id: null,
+      },
+      include: { categoria: true },     });
+
+    if (!categoriaPai) return [];
+
+        return categoriaPai.categoria.map((sub) => ({
+      id: sub.id,
+      nome: sub.nome,
+    }));
+  }
 
   async findAll() {
     return await this.prisma.loja.findMany({
@@ -41,7 +66,10 @@ export class LojaService {
     return await this.prisma.loja.findMany({
       where: { donoId: Number(donoId) },
       include: {
-        produtos: true,
+        produtos: {
+            include: {
+                Categoria: true,             }
+        }
       },
     });
   }
@@ -53,38 +81,57 @@ export class LojaService {
         produtos: true,
         avaliacoes: true,
         dono: true,
-      },
+        categoria: true,       },
     });
 
     if (!loja) {
       throw new NotFoundException(`Loja com ID ${id} não encontrada.`);
-    }
+    }   
+    const categoriaNome = loja.categoria ? loja.categoria.nome : null;
 
-    return loja;
+    return {
+      ...loja,
+      categoriaNome: categoriaNome,
+    };
+}
+
+    
+      
+          
+ async update(id: number, data: any, files: any) {
+  const loja = await this.prisma.loja.findUnique({ where: { id } });
+
+  if (!loja) {
+    throw new NotFoundException(`Loja com ID ${id} não encontrada.`);
   }
 
-  // async update(id: number, updateLojaDto: UpdateLojaDto) {
-  //   const exists = await this.prisma.loja.findUnique({ where: { id } });
+    const getUrl = (fileArray?: Express.Multer.File[]) => 
+    fileArray?.[0] ? `/uploads/${fileArray[0].filename}` : undefined;
 
-  //   if (!exists) {
-  //     throw new NotFoundException(`Loja com ID ${id} não encontrada.`);
-  //   }
-
-  //   return await this.prisma.loja.update({
-  //     where: { id },
-  //     data: updateLojaDto,
-  //   });
-  // }
-  async update(id: number, data: any, files: any) {
-  return this.prisma.loja.update({
-    where: { id },
-    data: {
+    
+    const updateData: any = {
       nome: data.nome,
       descricao: data.descricao,
-      perfil_url: files.perfil ? "/uploads/" + files.perfil[0].filename : undefined,
-      banner_url: files.banner ? "/uploads/" + files.banner[0].filename : undefined,
-      sticker_url: files.sticker ? "/uploads/" + files.sticker[0].filename : undefined,
-    },
+
+            categoriaId: data.categoriaId
+        ? Number(data.categoriaId)
+        : undefined,
+      
+            perfil_url: getUrl(files.fotoPerfil),
+      
+            sticker_url: getUrl(files.logoSticker), 
+      
+            banner_url: getUrl(files.banner),
+  };
+  
+      if (data.removeFotoPerfil === 'true') updateData.perfil_url = null;
+  if (data.removeLogoSticker === 'true') updateData.sticker_url = null;
+  if (data.removeBanner === 'true') updateData.banner_url = null;
+
+
+  return this.prisma.loja.update({
+    where: { id },
+    data: updateData,
   });
 }
 

@@ -43,7 +43,8 @@ export class LojaController {
     const lojaData: CreateLojaWithFilesDto = {
       ...createLojaDto,
       donoId: Number(createLojaDto.donoId),
-
+      categoriaId: Number(createLojaDto.categoriaId),
+      
       perfil_url: files.fotoPerfil?.[0]
         ? `/uploads/${files.fotoPerfil[0].filename}`
         : undefined,
@@ -75,27 +76,27 @@ export class LojaController {
     return this.lojaService.buscarLojaPorUsuario(donoId);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id', ParseIntPipe) id: number,
-  //   @Body() updateLojaDto: UpdateLojaDto,
-  // ) {
-  //   return this.lojaService.update(id, updateLojaDto);
-  // }
+  @Get(':id/subcategorias')
+  async getSubcategorias(@Param('id', ParseIntPipe) id: number) {
+    return this.lojaService.getSubcategorias(id);
+  }
+
+
   @Patch(':id')
   @UseInterceptors(
-  FileFieldsInterceptor([
-    { name: 'perfil', maxCount: 1 },
-    { name: 'banner', maxCount: 1 },
-    { name: 'sticker', maxCount: 1 },
-  ], multerConfig)
+    FileFieldsInterceptor([
+    { name: 'fotoPerfil', maxCount: 1 },     { name: 'logoSticker', maxCount: 1 },     { name: 'banner', maxCount: 1 },   ], multerConfig)
   )
   update(
-    @Param('id', ParseIntPipe) id: number,
-    @UploadedFiles() files: { perfil?: Express.Multer.File[]; banner?: Express.Multer.File[]; sticker?: Express.Multer.File[] },
+    @Param('id',  ParseIntPipe) id: number,
+        @UploadedFiles() files: { 
+        fotoPerfil?: Express.Multer.File[]; 
+        logoSticker?: Express.Multer.File[]; 
+        banner?: Express.Multer.File[] 
+    },
     @Body() body
   ) {
-    return this.lojaService.update(id, body, files);
+            return this.lojaService.update(id, body, files);
   }
   
 

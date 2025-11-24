@@ -28,12 +28,21 @@
 
   }
 
+  model CategoriaLoja {
+  id    Int     @id @default(autoincrement())
+  nome  String  @unique
+  lojas Loja[]
+  
+  }
+
   model Loja{
     id                Int      @id @default(autoincrement())
     nome              String
     descricao         String?
     dono              Usuario  @relation(fields: [donoId], references: [id])
     donoId            Int
+    categoriaId       Int
+    categoria         CategoriaLoja @relation(fields: [categoriaId], references: [id])
     perfil_url        String?
     banner_url        String?
     sticker_url       String?
@@ -56,6 +65,10 @@
     preco     Float
     estoque   Int
     Imagems_produto_URL String?
+    imagem1_url     String?                 
+    imagem2_url     String?                 
+    imagem3_url     String?                 
+    imagem4_url     String?                 
     imagens   Imagens_produto[]
     avaliacoes Avaliacao_produto[] 
   }
