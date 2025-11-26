@@ -58,6 +58,7 @@ async getSubcategorias(lojaId: number) {
         produtos: true,
         avaliacoes: true,
         dono: true,
+        categoria: true
       },
     });
   }
