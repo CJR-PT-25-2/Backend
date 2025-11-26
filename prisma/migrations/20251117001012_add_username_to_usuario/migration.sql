@@ -5,7 +5,7 @@ CREATE TABLE "Usuario" (
     "name" TEXT,
     "username" TEXT NOT NULL,
     "senha" TEXT NOT NULL,
-    "foto__perfil_URL" TEXT,
+    "foto_perfil_URL" TEXT,
 
     CONSTRAINT "Usuario_pkey" PRIMARY KEY ("id")
 );
@@ -15,7 +15,9 @@ CREATE TABLE "Loja" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "descricao" TEXT,
+    "categoria" INTEGER NOT NULL,
     "donoId" INTEGER NOT NULL,
+    "perfil_URL" TEXT,
     "banner_url" TEXT,
     "sticker_url" TEXT,
 

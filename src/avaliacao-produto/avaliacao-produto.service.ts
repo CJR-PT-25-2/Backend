@@ -19,7 +19,7 @@ export class AvaliacaoProdutoService {
       },
       include: {
         Usuario: {
-          select: { id: true, name: true, foto__perfil_URL: true },
+          select: { id: true, name: true, foto_perfil_URL: true },
         },
       },
     });
@@ -30,7 +30,7 @@ export class AvaliacaoProdutoService {
       where: { produto_id: produtoId },
       include: {
         Usuario: {
-          select: { id: true, name: true, foto__perfil_URL: true },
+          select: { id: true, name: true, foto_perfil_URL: true },
         },
       },
     });
