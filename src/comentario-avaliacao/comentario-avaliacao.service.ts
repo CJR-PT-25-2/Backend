@@ -14,8 +14,9 @@ export class ComentariosAvaliacaoService {
   async create(createDto: CreateComentarioAvaliacaoDto, usuarioId: number) {
     return this.prisma.comentarios_avaliacao.create({
       data: {
-        avaliacao_produto_id: createDto.avaliacao_produto_id,
-        avaliacao_loja_id: createDto.avaliacao_loja_id,
+        avaliacao_produto_id: createDto.avaliacao_produto_id ?? undefined,
+        avaliacao_loja_id: createDto.avaliacao_loja_id ?? undefined,
+
         usuario_id: usuarioId,
         conteudo: createDto.conteudo,
       },
@@ -54,7 +55,11 @@ export class ComentariosAvaliacaoService {
     return comentario;
   }
 
-  async update(id: number, updateDto: UpdateComentarioAvaliacaoDto, usuarioId: number) {
+  async update(
+    id: number,
+    updateDto: UpdateComentarioAvaliacaoDto,
+    usuarioId: number,
+  ) {
     await this.verificarPropriedade(id, usuarioId);
 
     return this.prisma.comentarios_avaliacao.update({
