@@ -7,12 +7,14 @@ export const SUBCATEGORIAS = {
     "Bebidas",
     "Açougue",
     "Mercearia",
+    "Outros",
   ],
 
   Farmacia: [
     "Higiene",
     "Cosméticos",
     "Medicamentos",
+    "Outros",
   ],
 
   Beleza: [
@@ -20,6 +22,7 @@ export const SUBCATEGORIAS = {
     "Skincare",
     "Cabelo",
     "Corpo",
+    "Outros",
   ],
 
   Brinquedo: [
@@ -27,6 +30,7 @@ export const SUBCATEGORIAS = {
     "Carrinho",
     "Legos",
     "Pelúcia",
+    "Outros",
   ],
 
   Moda: [
@@ -34,6 +38,7 @@ export const SUBCATEGORIAS = {
     "Blusa",
     "Calça",
     "Sapato",
+    "Outros",
   ],
 
   Casa: [
@@ -41,6 +46,7 @@ export const SUBCATEGORIAS = {
     "Sala",
     "Quarto",
     "Banheiro",
+    "Outros",
   ],
 
   Eletronicos: [
@@ -48,11 +54,17 @@ export const SUBCATEGORIAS = {
     "Notebooks", 
     "TVs", 
     "Acessórios",
+    "Outros",
   ],
 
   Jogos: [
     "Consoles e Eletrônicos",
     "Tabuleiro",
-  ]
+    "Outros",
+  ], 
+
+  Outros: [
+    "Diversos",
+  ],
   
 } as const;
