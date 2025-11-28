@@ -118,10 +118,10 @@
 
   model Comentarios_avaliacao{
     id                    Int @id @default(autoincrement())
-    avaliacao_produto_id  Int
-    avaliacao_produto     Avaliacao_produto @relation(fields: [avaliacao_produto_id], references: [id])
-    avaliacao_loja_id     Int
-    avaliacao_loja        Avaliacao_loja @relation(fields: [avaliacao_loja_id], references: [id])
+    avaliacao_produto_id  Int?
+    avaliacao_produto     Avaliacao_produto? @relation(fields: [avaliacao_produto_id], references: [id])
+    avaliacao_loja_id     Int?
+    avaliacao_loja        Avaliacao_loja? @relation(fields: [avaliacao_loja_id], references: [id])
     usuario_id            Int
     Usuario               Usuario @relation(fields: [usuario_id], references: [id])
     conteudo              String
