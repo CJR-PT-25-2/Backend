@@ -9,6 +9,7 @@ import { ProdutoModule } from './produto/produto.module';
 import { LojaModule } from './loja/loja.module';
 import { AvaliacaoLojaModule } from './avaliacao-loja/avaliacao-loja.module';
 import { AvaliacaoProdutoModule } from './avaliacao-produto/avaliacao-produto.module';
+import { ComentariosAvaliacaoModule } from './comentario-avaliacao/comentario-avaliacao.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
@@ -31,6 +32,7 @@ import { CategoriaModule } from './categoria/categoria.module';
     AvaliacaoLojaModule,
     AvaliacaoProdutoModule,
     CategoriaModule,
+    ComentariosAvaliacaoModule
   ],
   controllers: [AppController],
   providers: [AppService],
