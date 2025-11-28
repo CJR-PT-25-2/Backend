@@ -11,12 +11,15 @@ const CATEGORIAS_LOJA_DADOS = [
   { nome: "Casa" },
   { nome: "Eletronicos" },
   { nome: "Jogos" },
+  { nome: "Outros" },
 ];
 
 async function main() {
   console.log("Iniciando limpeza e semeadura... 🌱");
 
-        await prisma.avaliacao_loja.deleteMany();
+  await prisma.comentarios_avaliacao.deleteMany();
+  await prisma.avaliacao_produto.deleteMany();
+  await prisma.avaliacao_loja.deleteMany();
   await prisma.produto.deleteMany();
   await prisma.loja.deleteMany();
   await prisma.categoriaLoja.deleteMany();
@@ -57,36 +60,41 @@ for (const seq of sequences) {
         "Bebidas",
         "Açougue",
         "Mercearia",
+        "Outros",
       ],
     },
     {
       nome: "Farmacia",
-      subcategorias: ["Medicamentos", "Higiene", "Cosméticos"],
+      subcategorias: ["Medicamentos", "Higiene", "Cosméticos", "Outros"],
     },
     {
       nome: "Brinquedo",
-      subcategorias: ["Boneca", "Carrinho", "Legos", "Pelúcia"],
+      subcategorias: ["Boneca", "Carrinho", "Legos", "Pelúcia", "Outros"],
     },
     {
       nome: "Beleza",
-      subcategorias: ["Skincare", "Maquiagem", "Cabelo", "Corpo"],
+      subcategorias: ["Skincare", "Maquiagem", "Cabelo", "Corpo", "Outros"],
     },
     {
       nome: "Moda",
-      subcategorias: ["Vestido", "Blusa", "Calça", "Sapato"],
+      subcategorias: ["Vestido", "Blusa", "Calça", "Sapato", "Outros"],
     },
     {
       nome: "Casa",
-      subcategorias: ["Cozinha", "Sala", "Quarto", "Banheiro"],
+      subcategorias: ["Cozinha", "Sala", "Quarto", "Banheiro", "Outros"],
     },
     {
       nome: "Eletronicos",
-      subcategorias: ["Celulares", "Notebooks", "TVs", "Acessórios"],
+      subcategorias: ["Celulares", "Notebooks", "TVs", "Acessórios", "Outros"],
     },
     {
       nome: "Jogos",
-      subcategorias: ["Consoles e Eletrônicos", "Tabuleiro"],
-    }
+      subcategorias: ["Consoles e Eletrônicos", "Tabuleiro", "Outros"],
+    },
+    {
+      nome: "Outros",
+      subcategorias: ["Diversos"],
+    },
   ];
 
   for (const categoria of categorias) {
