@@ -39,7 +39,24 @@ export class AvaliacaoLojaService {
   async findOne(id: number) {
     const avaliacao = await this.prisma.avaliacao_loja.findUnique({
       where: { id },
+      include: {
+        Usuario: {
+          select: { id: true, name: true, foto_perfil_URL: true },
+        },
+        loja: {
+          select: { id: true, donoId: true }, // Precisamos do donoId para saber quem é a dona
+        },
+        Comentarios: {
+          include: {
+            Usuario: {
+              select: { id: true, name: true, foto_perfil_URL: true },
+            },
+          },
+          orderBy: { id: 'asc' }, // Ordena comentários do mais antigo pro novo
+        },
+      },
     });
+
     if (!avaliacao) {
       throw new NotFoundException('Avaliação da loja não encontrada.');
     }
