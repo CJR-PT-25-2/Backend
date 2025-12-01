@@ -39,10 +39,35 @@ export class AvaliacaoProdutoService {
   async findOne(id: number) {
     const avaliacao = await this.prisma.avaliacao_produto.findUnique({
       where: { id },
+      include: {
+        
+        Usuario: {
+          select: { id: true, name: true, foto_perfil_URL: true },
+        },
+        
+        
+        Produto: {
+          include: {
+            Loja: true, 
+          },
+        },
+        
+        
+        Comentarios: { 
+          include: {
+            Usuario: true, 
+          },
+          orderBy: {
+            id: 'asc', 
+          }
+        }
+      },
     });
+    
     if (!avaliacao) {
       throw new NotFoundException('Avaliação não encontrada.');
     }
+    
     return avaliacao;
   }
 

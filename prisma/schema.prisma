@@ -39,7 +39,7 @@
     id                Int      @id @default(autoincrement())
     nome              String
     descricao         String?
-    dono              Usuario  @relation(fields: [donoId], references: [id])
+    dono              Usuario  @relation(fields: [donoId], references: [id], onDelete: Cascade)
     donoId            Int
     categoriaId       Int
     categoria         CategoriaLoja @relation(fields: [categoriaId], references: [id])
@@ -55,7 +55,7 @@
   model Produto{
     id        Int  @id @default(autoincrement())
     loja_id   Int
-    Loja      Loja   @relation(fields: [loja_id], references: [id])
+    Loja      Loja   @relation(fields: [loja_id], references: [id], onDelete: Cascade)
     categoria_id  Int
     Categoria    Categoria @relation(name: "categoriaEspec", fields: [categoria_id], references: [id])
     categoria_id_pai Int 
@@ -78,7 +78,7 @@
     ordem        Int
     Img_URL      String
     produto_id   Int
-    Produto      Produto @relation(fields: [produto_id], references: [id])
+    Produto      Produto @relation(fields: [produto_id], references: [id], onDelete: Cascade)
     Categoria    Categoria @relation(fields: [categoria_id], references: [id])
     categoria_id Int 
   }
@@ -97,9 +97,9 @@
   model Avaliacao_produto{
     id                    Int @id @default(autoincrement())
     produto_id            Int
-    Produto               Produto @relation(fields: [produto_id], references: [id])
+    Produto               Produto @relation(fields: [produto_id], references: [id], onDelete: Cascade)
     usuario_id            Int
-    Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+    Usuario               Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
     nota                  Int
     comentario            String 
     Comentarios Comentarios_avaliacao[] 
@@ -108,9 +108,9 @@
   model Avaliacao_loja{
     id                    Int @id @default(autoincrement())
     loja_id               Int
-    loja                  Loja @relation(fields: [loja_id], references: [id])
+    loja                  Loja @relation(fields: [loja_id], references: [id], onDelete: Cascade)
     usuario_id            Int
-    Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+    Usuario               Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
     nota                  Int
     comentario            String 
     Comentarios Comentarios_avaliacao[] 
@@ -123,7 +123,7 @@
     avaliacao_loja_id     Int?
     avaliacao_loja        Avaliacao_loja? @relation(fields: [avaliacao_loja_id], references: [id])
     usuario_id            Int
-    Usuario               Usuario @relation(fields: [usuario_id], references: [id])
+    Usuario               Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
     conteudo              String
 
   }
