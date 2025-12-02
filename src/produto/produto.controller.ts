@@ -78,8 +78,12 @@ export class ProdutoController {
 
 
   @Get()
-  findAll() {
-    return this.produtoService.findAll();
+  findAll( @Query('page') page?: string, @Query('limit') limit?: string) {
+    const paginationParams = {
+    page: page ? parseInt(page, 20) : 1,
+    limit: limit ? parseInt(limit, 20) : 10,
+  };
+    return this.produtoService.findAll(paginationParams);
   }
 
   @Get("search/:nome")

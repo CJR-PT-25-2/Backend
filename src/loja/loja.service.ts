@@ -79,6 +79,7 @@ export class LojaService {
     return await this.prisma.loja.findMany({
       where: { donoId: Number(donoId) },
       include: {
+        categoria: true,
         produtos: {
           include: {
             Categoria: true,

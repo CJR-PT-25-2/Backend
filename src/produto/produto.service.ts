@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { SUBCATEGORIAS } from './subcategorias';
+import { Produto } from './entities/produto.entity';
 
 export interface CreateProdutoWithNamesDto extends CreateProdutoDto {
   subcategoriaNome: string;
@@ -12,6 +13,12 @@ export interface CreateProdutoWithNamesDto extends CreateProdutoDto {
   imagem3_url?: string;
   imagem4_url?: string;
 }
+
+interface PaginationParams { //paginação dos produtos
+  page?: number;
+  limit?: number;
+}
+
 interface UpdateProdutoFilesDto extends UpdateProdutoDto {
   imagem1_url?: Express.Multer.File[];
   imagem2_url?: Express.Multer.File[];
@@ -111,8 +118,17 @@ export class ProdutoService {
   }
 
 
-  async findAll() {
-    return this.prisma.produto.findMany({
+  async findAll({ page = 1, limit = 20 }: PaginationParams) {
+     const pagina = Math.max(1, Number(page));
+     const limite = Math.max(1, Number(limit));
+     const skip = (pagina - 1) * limite;
+
+      const T_produtos = await this.prisma.produto.count();     
+
+    const produtosEncontrados = await this.prisma.produto.findMany({
+      take: limite,
+      skip: skip,
+      
       include: {
         Loja: true,
         Categoria: true,
@@ -121,6 +137,16 @@ export class ProdutoService {
         avaliacoes: true,
       },
     });
+
+    return {
+      data: produtosEncontrados,
+      meta: {
+        totalItems: T_produtos,
+        currentPage: pagina,
+        itemsPorPage: limite,
+        totalPages: Math.ceil(T_produtos / limite),
+      }
+    };  
   }
 
   async buscarPorNome(nome: string) {
