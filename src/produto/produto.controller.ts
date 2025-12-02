@@ -10,7 +10,8 @@ import {
   UsePipes,
   ValidationPipe,
   UseInterceptors,
-  UploadedFiles,   BadRequestException
+  UploadedFiles,   BadRequestException,
+  Query
 } from '@nestjs/common';
 import { multerConfig } from 'src/upload/upload.config';
 import { FileFieldsInterceptor } from '@nestjs/platform-express'; import { ProdutoService, CreateProdutoWithNamesDto } from './produto.service';
@@ -78,8 +79,12 @@ export class ProdutoController {
 
 
   @Get()
-  findAll() {
-    return this.produtoService.findAll();
+  findAll( @Query('page') page?: string, @Query('limit') limit?: string) {
+    const paginationParams = {
+    page: page ? parseInt(page, 20) : 1,
+    limit: limit ? parseInt(limit, 20) : 10,
+  };
+    return this.produtoService.findAll(paginationParams);
   }
 
   @Get(':id')
