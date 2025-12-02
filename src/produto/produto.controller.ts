@@ -10,7 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
   UseInterceptors,
-  UploadedFiles,   BadRequestException
+  UploadedFiles, BadRequestException
 } from '@nestjs/common';
 import { multerConfig } from 'src/upload/upload.config';
 import { FileFieldsInterceptor } from '@nestjs/platform-express'; import { ProdutoService, CreateProdutoWithNamesDto } from './produto.service';
@@ -32,10 +32,10 @@ const updateProdutoFields = [
 @Controller('produto')
 @UsePipes(new ValidationPipe({ whitelist: true }))
 export class ProdutoController {
-  constructor(private readonly produtoService: ProdutoService) {}
+  constructor(private readonly produtoService: ProdutoService) { }
 
   @Post()
-    @UseInterceptors(FileFieldsInterceptor(uploadFields, multerConfig)) 
+  @UseInterceptors(FileFieldsInterceptor(uploadFields, multerConfig))
   async create(
     @UploadedFiles()
     files: {
@@ -46,31 +46,31 @@ export class ProdutoController {
     },
     @Body() body: CreateProdutoDto & { subcategoria: string; categoriaPai: string }
   ) {
-        const getUrl = (fileArray?: Express.Multer.File[]) => 
+    const getUrl = (fileArray?: Express.Multer.File[]) =>
       fileArray?.[0] ? `/uploads/${fileArray[0].filename}` : undefined;
 
-        const urls = {
+    const urls = {
       imagem1_url: getUrl(files.imagem1),
       imagem2_url: getUrl(files.imagem2),
       imagem3_url: getUrl(files.imagem3),
       imagem4_url: getUrl(files.imagem4),
     };
-    
+
     if (!body.subcategoria || !body.categoriaPai) {
-        throw new BadRequestException("Os campos 'subcategoria' e 'categoriaPai' são obrigatórios.");
+      throw new BadRequestException("Os campos 'subcategoria' e 'categoriaPai' são obrigatórios.");
     }
-    
-        const createDto: CreateProdutoWithNamesDto = {
-        ...body,
-        
-        subcategoriaNome: body.subcategoria, 
-        categoriaPaiNome: body.categoriaPai,
-        
-                ...urls,
-                Imagems_produto_URL: urls.imagem1_url 
+
+    const createDto: CreateProdutoWithNamesDto = {
+      ...body,
+
+      subcategoriaNome: body.subcategoria,
+      categoriaPaiNome: body.categoriaPai,
+
+      ...urls,
+      Imagems_produto_URL: urls.imagem1_url
     };
-    
-    delete (createDto as any).subcategoria; 
+
+    delete (createDto as any).subcategoria;
     delete (createDto as any).categoriaPai;
 
     return this.produtoService.create(createDto);
@@ -82,31 +82,37 @@ export class ProdutoController {
     return this.produtoService.findAll();
   }
 
+  @Get("search/:nome")
+  buscarProduto(@Param("nome") nome: string) {
+    return this.produtoService.buscarPorNome(nome);
+  }
+
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.produtoService.findOne(id);
   }
 
   @Get('categoria_pai/:id')
-async findByCategoriaPai(@Param('id', ParseIntPipe) id: number) {
-  return this.produtoService.findByCategoriaPai(id);
-}
+  async findByCategoriaPai(@Param('id', ParseIntPipe) id: number) {
+    return this.produtoService.findByCategoriaPai(id);
+  }
 
   @Patch(':id')
-@UseInterceptors(FileFieldsInterceptor(updateProdutoFields, multerConfig))
-update(
-  @Param('id', ParseIntPipe) id: number,
+  @UseInterceptors(FileFieldsInterceptor(updateProdutoFields, multerConfig))
+  update(
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFiles()
-  files: {
-    imagem1?: Express.Multer.File[];
-    imagem2?: Express.Multer.File[];
-    imagem3?: Express.Multer.File[];
-    imagem4?: Express.Multer.File[];
-  },
-    @Body() body: any, 
-) {
+    files: {
+      imagem1?: Express.Multer.File[];
+      imagem2?: Express.Multer.File[];
+      imagem3?: Express.Multer.File[];
+      imagem4?: Express.Multer.File[];
+    },
+    @Body() body: any,
+  ) {
     return this.produtoService.update(id, body, files);
-}
+  }
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {

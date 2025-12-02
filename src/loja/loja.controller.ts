@@ -15,7 +15,7 @@ import {
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 import { multerConfig } from 'src/upload/upload.config';
-import { FileFieldsInterceptor } from '@nestjs/platform-express'; 
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { CreateLojaWithFilesDto, LojaService } from './loja.service';
 
 const uploadFields = [
@@ -27,7 +27,7 @@ const uploadFields = [
 @Controller('loja')
 @UsePipes(new ValidationPipe({ whitelist: true }))
 export class LojaController {
-  constructor(private readonly lojaService: LojaService) {}
+  constructor(private readonly lojaService: LojaService) { }
 
   @Post()
   @UseInterceptors(FileFieldsInterceptor(uploadFields, multerConfig))
@@ -44,7 +44,7 @@ export class LojaController {
       ...createLojaDto,
       donoId: Number(createLojaDto.donoId),
       categoriaId: Number(createLojaDto.categoriaId),
-      
+
       perfil_url: files.fotoPerfil?.[0]
         ? `/uploads/${files.fotoPerfil[0].filename}`
         : undefined,
@@ -66,6 +66,11 @@ export class LojaController {
     return this.lojaService.findAll();
   }
 
+  @Get("search/:nome")
+  buscarPorNome(@Param("nome") nome: string) {
+    return this.lojaService.buscarPorNome(nome);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.lojaService.findOne(id);
@@ -85,20 +90,20 @@ export class LojaController {
   @Patch(':id')
   @UseInterceptors(
     FileFieldsInterceptor([
-    { name: 'fotoPerfil', maxCount: 1 },     { name: 'logoSticker', maxCount: 1 },     { name: 'banner', maxCount: 1 },   ], multerConfig)
+      { name: 'fotoPerfil', maxCount: 1 }, { name: 'logoSticker', maxCount: 1 }, { name: 'banner', maxCount: 1 },], multerConfig)
   )
   update(
-    @Param('id',  ParseIntPipe) id: number,
-        @UploadedFiles() files: { 
-        fotoPerfil?: Express.Multer.File[]; 
-        logoSticker?: Express.Multer.File[]; 
-        banner?: Express.Multer.File[] 
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFiles() files: {
+      fotoPerfil?: Express.Multer.File[];
+      logoSticker?: Express.Multer.File[];
+      banner?: Express.Multer.File[]
     },
     @Body() body
   ) {
-            return this.lojaService.update(id, body, files);
+    return this.lojaService.update(id, body, files);
   }
-  
+
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
