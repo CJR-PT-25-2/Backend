@@ -149,6 +149,23 @@ export class ProdutoService {
     };  
   }
 
+  async buscarPorNome(nome: string) {
+  return this.prisma.produto.findMany({
+    where: {
+      nome: {
+        contains: nome,
+        mode: "insensitive"
+      }
+    },
+    include: {
+      Loja: true,
+      Categoria: true,
+      Categoria_pai: true
+    }
+  });
+}
+
+
   async findOne(id: number) {
     const produto = await this.prisma.produto.findUnique({
       where: { id },
