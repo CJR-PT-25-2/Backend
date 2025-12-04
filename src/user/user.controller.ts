@@ -11,7 +11,8 @@ import {
   NotFoundException,
   Req,
   UseInterceptors,
-  UploadedFile
+  UploadedFile, Query,
+  DefaultValuePipe
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -31,10 +32,11 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+ 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,) {
+    return this.userService.findAll({page, limit });
   }
 
   @UseGuards(AuthGuard('jwt'))
