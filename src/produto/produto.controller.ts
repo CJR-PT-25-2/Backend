@@ -10,7 +10,8 @@ import {
   UsePipes,
   ValidationPipe,
   UseInterceptors,
-  UploadedFiles, BadRequestException
+  UploadedFiles, BadRequestException,
+  Query
 } from '@nestjs/common';
 import { multerConfig } from 'src/upload/upload.config';
 import { FileFieldsInterceptor } from '@nestjs/platform-express'; import { ProdutoService, CreateProdutoWithNamesDto } from './produto.service';

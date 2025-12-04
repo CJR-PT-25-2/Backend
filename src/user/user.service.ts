@@ -5,6 +5,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 
+interface PaginationParams { //paginação dos produtos
+  page?: number;
+  limit?: number;
+}
+
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -18,9 +23,40 @@ export class UserService {
     return user;
   }
 
-  async findAll() {
-    return await this.prisma.usuario.findMany();
+  async findAll({ page = 1, limit = 20 }: PaginationParams) {
+    const take = limit;
+    const skip = (page - 1) * take;
+
+    // 2. Contar o total de registros (para calcular totalPages)
+    const totalCount = await this.prisma.usuario.count();
+
+    const users = await this.prisma.usuario.findMany({
+      skip,
+      take,
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        foto_perfil_URL: true,
+      },
+    });
+
+    
+    const totalPages = Math.ceil(totalCount / limit);
+    return {
+      data: users,
+      meta: {
+        totalCount,
+        totalPages,
+        currentPage: page,
+        limit: take,
+      },
+    };
   }
+  
+
+  
+
 
   // ============================
   // 🔥 PERFIL LOGADO (/users/me)
