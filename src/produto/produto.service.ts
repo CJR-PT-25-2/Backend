@@ -85,9 +85,25 @@ export class ProdutoService {
       Categoria_pai: { connect: { id: categoriaPai.id } },
     };
 
-    return this.prisma.produto.create({ data: produtoData });
-  }
-
+    return this.prisma.produto.create({ 
+      data: produtoData, 
+      include: {
+              
+              Categoria: {
+                  select: {
+                      nome: true 
+                  }
+              },
+              
+              Loja: {
+                  select: {
+                      id: true,
+                      nome: true
+                  }
+              }
+          }
+      });
+    }
 
   async findByCategoriaPai(categoriaPaiId: number) {
     return this.prisma.produto.findMany({
