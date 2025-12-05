@@ -21,6 +21,8 @@
     username String @unique
     senha     String
     foto_perfil_URL String?
+    resetPasswordToken String? @unique
+    resetPasswordExpires DateTime?
     lojas Loja[]
     avaliacoes_p Avaliacao_produto[]
     avaliacoes_l Avaliacao_loja[]
