@@ -79,11 +79,11 @@ export class ProdutoController {
 
 
   @Get()
-  findAll( @Query('page') page?: string, @Query('limit') limit?: string) {
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     const paginationParams = {
-    page: page ? parseInt(page, 20) : 1,
-    limit: limit ? parseInt(limit, 20) : 10,
-  };
+      page: page ? parseInt(page, 10) : 1, 
+      limit: limit ? parseInt(limit, 10) : 10,
+    };
     return this.produtoService.findAll(paginationParams);
   }
 
@@ -102,6 +102,12 @@ export class ProdutoController {
   async findByCategoriaPai(@Param('id', ParseIntPipe) id: number) {
     return this.produtoService.findByCategoriaPai(id);
   }
+
+  @Get("all")
+  async findAllSemPaginacao() {
+    return this.produtoService.findAllSemPaginacao();
+  }
+
 
   @Patch(':id')
   @UseInterceptors(FileFieldsInterceptor(updateProdutoFields, multerConfig))

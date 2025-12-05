@@ -85,25 +85,25 @@ export class ProdutoService {
       Categoria_pai: { connect: { id: categoriaPai.id } },
     };
 
-    return this.prisma.produto.create({ 
-      data: produtoData, 
+    return this.prisma.produto.create({
+      data: produtoData,
       include: {
-              
-              Categoria: {
-                  select: {
-                      nome: true 
-                  }
-              },
-              
-              Loja: {
-                  select: {
-                      id: true,
-                      nome: true
-                  }
-              }
+
+        Categoria: {
+          select: {
+            nome: true
           }
-      });
-    }
+        },
+
+        Loja: {
+          select: {
+            id: true,
+            nome: true
+          }
+        }
+      }
+    });
+  }
 
   async findByCategoriaPai(categoriaPaiId: number) {
     return this.prisma.produto.findMany({
@@ -114,7 +114,7 @@ export class ProdutoService {
         preco: true,
         estoque: true,
 
-        categoria_id: true,       
+        categoria_id: true,
         categoria_id_pai: true,
 
         Imagems_produto_URL: true,
@@ -135,16 +135,16 @@ export class ProdutoService {
 
 
   async findAll({ page = 1, limit = 20 }: PaginationParams) {
-     const pagina = Math.max(1, Number(page));
-     const limite = Math.max(1, Number(limit));
-     const skip = (pagina - 1) * limite;
+    const pagina = Math.max(1, Number(page));
+    const limite = Math.max(1, Number(limit));
+    const skip = (pagina - 1) * limite;
 
-      const T_produtos = await this.prisma.produto.count();     
+    const T_produtos = await this.prisma.produto.count();
 
     const produtosEncontrados = await this.prisma.produto.findMany({
       take: limite,
       skip: skip,
-      
+
       include: {
         Loja: true,
         Categoria: true,
@@ -162,24 +162,35 @@ export class ProdutoService {
         itemsPorPage: limite,
         totalPages: Math.ceil(T_produtos / limite),
       }
-    };  
+    };
+  }
+
+  async findAllSemPaginacao() {
+    return this.prisma.produto.findMany({
+      include: {
+        Loja: true,
+      },
+      orderBy: {
+        id: "desc"
+      }
+    });
   }
 
   async buscarPorNome(nome: string) {
-  return this.prisma.produto.findMany({
-    where: {
-      nome: {
-        contains: nome,
-        mode: "insensitive"
+    return this.prisma.produto.findMany({
+      where: {
+        nome: {
+          contains: nome,
+          mode: "insensitive"
+        }
+      },
+      include: {
+        Loja: true,
+        Categoria: true,
+        Categoria_pai: true
       }
-    },
-    include: {
-      Loja: true,
-      Categoria: true,
-      Categoria_pai: true
-    }
-  });
-}
+    });
+  }
 
 
   async findOne(id: number) {
