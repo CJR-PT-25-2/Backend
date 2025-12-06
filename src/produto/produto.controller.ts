@@ -85,6 +85,8 @@ export class ProdutoController {
       @Query('search') search?: string,
       @Query('precoMaximo') precoMaximo?: string,
       @Query('sortType') sortType?: 'Nenhum' | 'Mais Recente' | 'Mais Antiga',
+        @Query('ratingSort') ratingSort?: 'Melhor' | 'Pior', 
+
     ) {
       const paginationParams = {
         page: page ? parseInt(page, 10) : 1,
@@ -92,6 +94,7 @@ export class ProdutoController {
         search: search || undefined,
         precoMaximo: precoMaximo ? Number(precoMaximo) : undefined,
         sortType: sortType || undefined,
+        ratingSort: ratingSort || undefined,   
       };
 
       return this.produtoService.findAll(paginationParams);

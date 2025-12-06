@@ -106,32 +106,39 @@ export class ProdutoService {
   }
 
   async findByCategoriaPai(categoriaPaiId: number) {
-    return this.prisma.produto.findMany({
-      where: { categoria_id_pai: categoriaPaiId },
-      select: {
-        id: true,
-        nome: true,
-        preco: true,
-        estoque: true,
+  return this.prisma.produto.findMany({
+    where: { categoria_id_pai: categoriaPaiId },
+    select: {
+      id: true,
+      nome: true,
+      preco: true,
+      estoque: true,
 
-        categoria_id: true,
-        categoria_id_pai: true,
+      categoria_id: true,
+      categoria_id_pai: true,
 
-        Imagems_produto_URL: true,
-        imagem1_url: true,
-        imagem2_url: true,
-        imagem3_url: true,
-        imagem4_url: true,
+      Imagems_produto_URL: true,
+      imagem1_url: true,
+      imagem2_url: true,
+      imagem3_url: true,
+      imagem4_url: true,
 
-        Loja: {
-          select: { sticker_url: true },
-        },
-
-        Categoria: true,
-        Categoria_pai: true
+      Loja: {
+        select: { sticker_url: true },
       },
-    });
-  }
+
+      Categoria: true,
+      Categoria_pai: true,
+
+      avaliacoes: {
+        select: {
+          nota: true,
+        },
+      },
+    },
+  });
+}
+
 
 
 async findAll({
@@ -141,6 +148,7 @@ async findAll({
   precoMaximo,
   sortType,
   ratingSort,
+  
 }: PaginationParams & {
   search?: string;
   precoMaximo?: number;
@@ -159,6 +167,8 @@ async findAll({
   const pagina = Math.max(1, Number(page));
   const limite = Math.max(1, Number(limit));
   const skip = (pagina - 1) * limite;
+  const rating = ratingSort?.toLowerCase();
+
 
   const where: any = {};
 
@@ -185,47 +195,43 @@ async findAll({
   }
 
   // ⭐ Ordenação por média REAL de avaliações
-  // -- funciona porque usa aggregate em vez de orderBy inválido! --
-  if (ratingSort === 'Melhor' || ratingSort === 'Pior') {
-    const produtosOrdenados = await this.prisma.produto.findMany({
-      where,
-      include: {
-        Loja: true,
-        Categoria: true,
-        Categoria_pai: true,
-        imagens: true,
-        avaliacoes: true,
-      },
-    });
+if (rating === 'melhor' || rating === 'pior') {
 
-    // calcula média manualmente
-    const produtosComMedia = produtosOrdenados.map((p) => {
-      const notas = p.avaliacoes.map((a) => a.nota);
-      const media =
-        notas.length > 0 ? notas.reduce((t, n) => t + n, 0) / notas.length : 0;
+  const produtosOrdenados = await this.prisma.produto.findMany({
+    where,
+    include: {
+      Loja: true,
+      Categoria: true,
+      Categoria_pai: true,
+      imagens: true,
+      avaliacoes: true,
+    },
+  });
 
-      return { ...p, mediaAvaliacao: media };
-    });
+  const produtosComMedia = produtosOrdenados.map((p) => {
+    const notas = p.avaliacoes.map((a) => a.nota);
+    const media =
+      notas.length > 0 ? notas.reduce((t, n) => t + n, 0) / notas.length : 0;
+    return { ...p, mediaAvaliacao: media };
+  });
 
-    // ordena pelo frontend (mas funcionando!)
-    produtosComMedia.sort((a, b) => {
-      if (ratingSort === 'Melhor') return b.mediaAvaliacao - a.mediaAvaliacao;
-      return a.mediaAvaliacao - b.mediaAvaliacao;
-    });
+  produtosComMedia.sort((a, b) => {
+    if (rating === 'melhor') return b.mediaAvaliacao - a.mediaAvaliacao;
+    return a.mediaAvaliacao - b.mediaAvaliacao;
+  });
 
-    const paginados = produtosComMedia.slice(skip, skip + limite);
+  const paginados = produtosComMedia.slice(skip, skip + limite);
 
-    return {
-      data: paginados,
-      meta: {
-        totalItems: totalProdutos,
-        currentPage: pagina,
-        itemsPorPage: limite,
-        totalPages: Math.ceil(totalProdutos / limite),
-      },
-    };
-  }
-
+  return {
+    data: paginados,
+    meta: {
+      totalItems: totalProdutos,
+      currentPage: pagina,
+      itemsPorPage: limite,
+      totalPages: Math.ceil(totalProdutos / limite),
+    },
+  };
+}
   // 🟩 Caso NÃO tenha sort por rating
   const produtos = await this.prisma.produto.findMany({
     where,
