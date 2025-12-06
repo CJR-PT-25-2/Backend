@@ -106,64 +106,158 @@ export class ProdutoService {
   }
 
   async findByCategoriaPai(categoriaPaiId: number) {
-    return this.prisma.produto.findMany({
-      where: { categoria_id_pai: categoriaPaiId },
-      select: {
-        id: true,
-        nome: true,
-        preco: true,
-        estoque: true,
+  return this.prisma.produto.findMany({
+    where: { categoria_id_pai: categoriaPaiId },
+    select: {
+      id: true,
+      nome: true,
+      preco: true,
+      estoque: true,
 
-        categoria_id: true,
-        categoria_id_pai: true,
+      categoria_id: true,
+      categoria_id_pai: true,
 
-        Imagems_produto_URL: true,
-        imagem1_url: true,
-        imagem2_url: true,
-        imagem3_url: true,
-        imagem4_url: true,
+      Imagems_produto_URL: true,
+      imagem1_url: true,
+      imagem2_url: true,
+      imagem3_url: true,
+      imagem4_url: true,
 
-        Loja: {
-          select: { sticker_url: true },
+      Loja: {
+        select: { sticker_url: true },
+      },
+
+      Categoria: true,
+      Categoria_pai: true,
+
+      avaliacoes: {
+        select: {
+          nota: true,
         },
-
-        Categoria: true,
-        Categoria_pai: true
       },
-    });
+    },
+  });
+}
+
+
+
+async findAll({
+  page = 1,
+  limit = 20,
+  search,
+  precoMaximo,
+  sortType,
+  ratingSort,
+  
+}: PaginationParams & {
+  search?: string;
+  precoMaximo?: number;
+  sortType?: 'Nenhum' | 'Mais Recente' | 'Mais Antiga';
+  ratingSort?: 'Nenhum' | 'Melhor' | 'Pior';
+}) {
+  console.log('findAll params ->', {
+    page,
+    limit,
+    search,
+    precoMaximo,
+    sortType,
+    ratingSort,
+  });
+
+  const pagina = Math.max(1, Number(page));
+  const limite = Math.max(1, Number(limit));
+  const skip = (pagina - 1) * limite;
+  const rating = ratingSort?.toLowerCase();
+
+
+  const where: any = {};
+
+  // 🔎 Filtro de busca
+  if (search) {
+    where.nome = { contains: search, mode: 'insensitive' };
   }
 
-
-  async findAll({ page = 1, limit = 20 }: PaginationParams) {
-    const pagina = Math.max(1, Number(page));
-    const limite = Math.max(1, Number(limit));
-    const skip = (pagina - 1) * limite;
-
-    const T_produtos = await this.prisma.produto.count();
-
-    const produtosEncontrados = await this.prisma.produto.findMany({
-      take: limite,
-      skip: skip,
-
-      include: {
-        Loja: true,
-        Categoria: true,
-        Categoria_pai: true,
-        imagens: true,
-        avaliacoes: true,
-      },
-    });
-
-    return {
-      data: produtosEncontrados,
-      meta: {
-        totalItems: T_produtos,
-        currentPage: pagina,
-        itemsPorPage: limite,
-        totalPages: Math.ceil(T_produtos / limite),
-      }
-    };
+  // 💰 Filtro por preço máximo
+  if (precoMaximo !== undefined) {
+    where.preco = { lte: precoMaximo };
   }
+
+  const totalProdutos = await this.prisma.produto.count({ where });
+
+  // 🔽 ORDENAR – agora funciona 100%
+  const orderBy: any[] = [];
+
+  // 🕒 Ordenação por data
+  if (sortType === 'Mais Recente') {
+    orderBy.push({ id: 'desc' });
+  } else if (sortType === 'Mais Antiga') {
+    orderBy.push({ id: 'asc' });
+  }
+
+  // ⭐ Ordenação por média REAL de avaliações
+if (rating === 'melhor' || rating === 'pior') {
+
+  const produtosOrdenados = await this.prisma.produto.findMany({
+    where,
+    include: {
+      Loja: true,
+      Categoria: true,
+      Categoria_pai: true,
+      imagens: true,
+      avaliacoes: true,
+    },
+  });
+
+  const produtosComMedia = produtosOrdenados.map((p) => {
+    const notas = p.avaliacoes.map((a) => a.nota);
+    const media =
+      notas.length > 0 ? notas.reduce((t, n) => t + n, 0) / notas.length : 0;
+    return { ...p, mediaAvaliacao: media };
+  });
+
+  produtosComMedia.sort((a, b) => {
+    if (rating === 'melhor') return b.mediaAvaliacao - a.mediaAvaliacao;
+    return a.mediaAvaliacao - b.mediaAvaliacao;
+  });
+
+  const paginados = produtosComMedia.slice(skip, skip + limite);
+
+  return {
+    data: paginados,
+    meta: {
+      totalItems: totalProdutos,
+      currentPage: pagina,
+      itemsPorPage: limite,
+      totalPages: Math.ceil(totalProdutos / limite),
+    },
+  };
+}
+  // 🟩 Caso NÃO tenha sort por rating
+  const produtos = await this.prisma.produto.findMany({
+    where,
+    take: limite,
+    skip,
+    orderBy: orderBy.length ? orderBy : undefined,
+    include: {
+      Loja: true,
+      Categoria: true,
+      Categoria_pai: true,
+      imagens: true,
+      avaliacoes: true,
+    },
+  });
+
+  return {
+    data: produtos,
+    meta: {
+      totalItems: totalProdutos,
+      currentPage: pagina,
+      itemsPorPage: limite,
+      totalPages: Math.ceil(totalProdutos / limite),
+    },
+  };
+}
+
 
   async findAllSemPaginacao() {
     return this.prisma.produto.findMany({

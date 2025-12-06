@@ -79,13 +79,27 @@ export class ProdutoController {
 
 
   @Get()
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
-    const paginationParams = {
-      page: page ? parseInt(page, 10) : 1, 
-      limit: limit ? parseInt(limit, 10) : 10,
-    };
-    return this.produtoService.findAll(paginationParams);
-  }
+    findAll(
+      @Query('page') page?: string,
+      @Query('limit') limit?: string,
+      @Query('search') search?: string,
+      @Query('precoMaximo') precoMaximo?: string,
+      @Query('sortType') sortType?: 'Nenhum' | 'Mais Recente' | 'Mais Antiga',
+        @Query('ratingSort') ratingSort?: 'Melhor' | 'Pior', 
+
+    ) {
+      const paginationParams = {
+        page: page ? parseInt(page, 10) : 1,
+        limit: limit ? parseInt(limit, 10) : 10,
+        search: search || undefined,
+        precoMaximo: precoMaximo ? Number(precoMaximo) : undefined,
+        sortType: sortType || undefined,
+        ratingSort: ratingSort || undefined,   
+      };
+
+      return this.produtoService.findAll(paginationParams);
+}
+
 
   @Get("search/:nome")
   buscarProduto(@Param("nome") nome: string) {
